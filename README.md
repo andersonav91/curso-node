@@ -1,4 +1,4 @@
-# curso-node
+# Curso Node Js
 Curso Node Js - Tecnológico de Antioquia.
 
 # Tarea 1
