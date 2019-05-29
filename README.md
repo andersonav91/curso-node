@@ -1,11 +1,10 @@
 # Curso Node Js
 Curso Node Js - Tecnológico de Antioquia.
 
-# Tarea 1
-Antes de iniciar, correr el comando **npm install yargs**
+# Tarea 2
+Antes de iniciar, correr el comando **npm install express**
 
-# Caso de Uso 1 
-Correr **node principal.js**
+# Cómo correr el servidor ?
 
-# Caso de Uso 2
-Correr **node principal.js inscribir -c=1234 -i=1 -n="Pepito Perez"**
+node server.js y luego ingresar a http://localhost:3000 
+
