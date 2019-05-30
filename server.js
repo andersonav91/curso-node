@@ -17,6 +17,14 @@ app.get('/', function (req, res) {
     res.render(path.join(__dirname + '/vistas/cursos.hbs'));
 });
 
+app.get('/crear-cursos', function (req, res) {
+    res.locals = {
+        some_value: 'foo bar',
+        list: ['cat', 'dog']
+    }
+    res.render(path.join(__dirname + '/vistas/crear-cursos.hbs'));
+});
+
 app.listen(3000, function () {
     // cursos
     fs.exists("cursos.json", function (exists) {

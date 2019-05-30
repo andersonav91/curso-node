@@ -1,0 +1,56 @@
+<html>
+<head>
+    <title>Curso Node</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+    {{> menu}}
+    <h2>Crear Curso</h2>
+    <hr/>
+    <div class="row">
+        <div class="col-md-12 mx-auto">
+            <form>
+                <div class="form-group row">
+                    <div class="col-sm-6">
+                        <label for="idCurso">Id Curso</label>
+                        <input type="text" class="form-control" id="idCurso" placeholder="Id Curso" required>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="nombre">Nombre</label>
+                        <input type="text" class="form-control" id="nombre" placeholder="Nombre" required>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-6">
+                        <label for="descripcion">Descripción</label>
+                        <textarea class="form-control" id="descripcion" placeholder="Descripción" required></textarea>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="valor">Valor ($)</label>
+                        <input type="number" class="form-control" id="valor" placeholder="Valor" required>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-6">
+                        <label for="modalidad">Modalidad</label>
+                        <select class="form-control" id="modalidad">
+                            <option value="virtual">Virtual</option>
+                            <option value="presencial">Presencial</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="intensidadHoraria">Intensidad Horaria</label>
+                        <input type="text" class="form-control" id="intensidadHoraria" placeholder="Intensidad Horaria">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary px-4 float-right">Guardar</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
