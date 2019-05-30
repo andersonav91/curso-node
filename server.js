@@ -24,11 +24,22 @@ app.get('/listar-cursos', function (req, res) {
     const cursos = require('./cursos.json');
     res.locals = {
         cursos: cursos.filter(function (item) {
-            console.log(item);
             return item.estado === 'disponible'
         }),
     };
     res.render(path.join(__dirname + '/vistas/listar-cursos.hbs'));
+});
+
+app.get('/ver-curso/:id', function (req, res) {
+    var cursos = require('./cursos.json');
+    const id = req.params.id;
+    curso = cursos.filter(function (item) {
+        return item.idCurso === id
+    });
+    res.locals = {
+        curso: curso[0]
+    };
+    res.render(path.join(__dirname + '/vistas/ver-curso.hbs'));
 });
 
 app.post('/guardar-cursos', function (req, res) {
@@ -42,7 +53,7 @@ app.post('/guardar-cursos', function (req, res) {
         nombre: body['nombre'],
         descripcion: body['descripcion'],
         valor: body['valor'],
-        intensidad: body['intensidad'],
+        intensidad: body['intensidadHoraria'],
         modalidad: body['modalidad'],
         estado: 'disponible',
     });

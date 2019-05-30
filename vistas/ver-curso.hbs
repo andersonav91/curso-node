@@ -1,0 +1,69 @@
+<html>
+<head>
+    <title>Curso Node</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+    <style>
+        fieldset{
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    {{> menu}}
+    <h2>Ver Curso</h2>
+    <hr/>
+
+    <div class="row">
+        <fieldset>
+        <div class="col-md-12 mx-auto">
+            <div class="form-group row">
+                <div class="col-sm-6">
+                    <label for="idCurso">Id Curso: </label>
+                    {{curso.idCurso}}
+                </div>
+                <div class="col-sm-6">
+                    <label for="nombre">Nombre: </label>
+                    {{curso.nombre}}
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-6">
+                    <label for="descripcion">Descripción: </label>
+                    {{curso.descripcion}}
+                </div>
+                <div class="col-sm-6">
+                    <label for="valor">Valor ($): </label>
+                    ${{curso.valor}}
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-6">
+                    <label for="modalidad">Modalidad: </label>
+                    {{curso.modalidad}}
+                </div>
+                <div class="col-sm-6">
+                    <label for="intensidadHoraria">Intensidad Horaria: </label>
+                    {{#if curso.intensidad}}
+                        {{curso.intensidad}} horas
+                    {{/if}}
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-6">
+                    <label for="modalidad">Estado: </label>
+                    {{curso.estado}}
+                </div>
+                <div class="col-sm-6">
+                    &nbsp;
+                </div>
+            </div>
+        </div>
+        </fieldset>
+    </div>
+</div>
+</body>
+</html>
