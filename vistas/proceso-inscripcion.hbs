@@ -1,0 +1,69 @@
+<html>
+<head>
+    <title>Curso Node</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+    {{> menu}}
+    <h2>Proceso Inscripción</h2>
+    <hr/>
+
+    {{#if existeUsuarioCurso}}
+    <div class="alert alert-danger" role="alert">
+        El usuario ya ha realizado una inscripción a este curso.
+    </div>
+    {{/if}}
+
+    {{#if guardado}}
+        <div class="alert alert-success" role="alert">
+            La inscripción se guardó correctamente.
+        </div>
+    {{/if}}
+
+    <div class="row">
+        <div class="col-md-12 mx-auto">
+            <form action="/guardar-proceso-inscripcion" method="post">
+                <div class="form-group row">
+                    <div class="col-sm-6">
+                        <label for="curso">Curso * </label>
+                        <select class="form-control" id="idCurso" name="idCurso">
+                            {{#each cursos}}
+                                <option value="{{idCurso}}">{{nombre}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="nombre">Documento Identidad * </label>
+                        <input type="text" class="form-control" id="documento" name="documento" placeholder="Documento Identidad" required>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-6">
+                        <label for="nombre">Nombre * </label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre" required>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="nombre">Correo * </label>
+                        <input type="text" class="form-control" id="correo" name="correo" placeholder="Correo" required>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-6">
+                        <label for="modalidad">Teléfono * </label>
+                        <input type="text" class="form-control" id="telefono" name="telefono" placeholder="Teléfono" required>
+                    </div>
+                    <div class="col-sm-6">
+                        &nbsp;
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary px-4 float-right">Guardar</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
