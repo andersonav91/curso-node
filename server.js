@@ -12,6 +12,27 @@ app.set('view engine', 'hbs');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
+hbs.registerHelper('obtenerListaInscritos', function(object) {
+    var inscritos = require('./inscritos.json');
+    var usuarios = require('./usuarios.json');
+    inscritos = inscritos.filter(function (item) {
+        return item.idCurso === object
+    });
+    var ret = "<ul class='list-group list-group-flush'>";
+    inscritos.forEach(function (it) {
+        var usua = usuarios.filter(function (item) {
+            return item.documento === it.documento
+        });
+        usua.forEach(function (i) {
+            ret = ret + "<li class='list-group-item'>" + i.nombre + "</li>";
+        });
+    });
+    ret = ret + "</ul>";
+    return ret;
+  }
+);
+
+
 app.get('/', function (req, res) {
     res.render(path.join(__dirname + '/vistas/cursos.hbs'));
 });
@@ -28,6 +49,33 @@ app.get('/listar-cursos', function (req, res) {
         }),
     };
     res.render(path.join(__dirname + '/vistas/listar-cursos.hbs'));
+});
+
+app.get('/ver-inscritos', function (req, res) {
+    const cursos = require('./cursos.json');
+    res.locals = {
+        cursos: cursos.filter(function (item) {
+            return item.estado === 'disponible'
+        }),
+    };
+    res.render(path.join(__dirname + '/vistas/ver-inscritos.hbs'));
+});
+
+app.post('/cambiar-estado-curso', function (req, res) {
+    var cursos = require('./cursos.json');
+    const body = req.body;
+    var idCurso = body.idCurso;
+
+    cursos[cursos.findIndex(el => el.idCurso === idCurso)].estado = "cerrado";
+    escribirArchivo("cursos.json", cursos);
+
+    res.locals = {
+        cursos: cursos.filter(function (item) {
+            return item.estado === 'disponible'
+        }),
+        cerrado: true
+    };
+    res.render(path.join(__dirname + '/vistas/ver-inscritos.hbs'));
 });
 
 app.get('/ver-curso/:id', function (req, res) {
@@ -115,7 +163,7 @@ app.post('/guardar-cursos', function (req, res) {
 
 app.listen(3000, function () {
     // cursos
-    fs.exists("usuarios.json", function (exists) {
+    fs.exists("cursos.json", function (exists) {
             if (!exists) {
                 // usuarios
                 escribirArchivo("cursos.json", []);

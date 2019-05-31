@@ -1,0 +1,73 @@
+<html>
+<head>
+    <title>Curso Node</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+    {{> menu}}
+    <h2>Ver inscritos</h2>
+    <hr/>
+
+    {{#if cerrado}}
+        <div class="alert alert-success" role="alert">
+            El curso se cerró correctamente.
+        </div>
+    {{/if}}
+
+    <div class="row">
+        <div class="col-md-12 mx-auto">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Id Curso</th>
+                    <th scope="col">Nombre Curso</th>
+                    <th scope="col">Descripción</th>
+                    <th scope="col">Inscritos</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{#each cursos}}
+                    <tr>
+                        <th scope="row"><a href="/ver-curso/{{idCurso}}">{{idCurso}}</a></th>
+                        <td><a href="/ver-curso/{{idCurso}}">{{nombre}}</a></td>
+                        <td>{{descripcion}}</td>
+                        <td>{{{obtenerListaInscritos idCurso}}}</td>
+                    </tr>
+                {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <h2>Cerrar Curso</h2>
+    <hr/>
+
+    <div class="row">
+        <div class="col-md-12 mx-auto">
+            <form action="/cambiar-estado-curso" method="post">
+                <div class="form-group row">
+                    <div class="col-sm-12">
+                        <label for="curso">Curso * </label>
+                        <select class="form-control" id="idCurso" name="idCurso">
+                            {{#each cursos}}
+                                <option value="{{idCurso}}">{{nombre}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                    <div class="col-sm-12">
+                        &nbsp;
+                    </div>
+                    <div class="col-sm-12">
+                        <button type="submit" class="btn btn-primary btn-lg btn-block">Cerrar Curso</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
