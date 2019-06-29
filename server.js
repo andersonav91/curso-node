@@ -159,7 +159,6 @@ app.get('/cursos', function (req, res) {
 
 app.get('/listar-cursos', function (req, res) {
     var cursos = {};
-    console.log(req.session);
     if(req.session.tipo == 'aspirante'){
         cursos = Curso.find({estado: 'disponible'},(err, result)=>{
             if (err){
@@ -251,7 +250,6 @@ app.get('/proceso-inscripcion/', function (req, res) {
         if (err){
             return console.log(err)
         }
-
         Usuario.findOne({documento: req.session.documento},(er, usuario)=> {
             if (err){
                 return console.log(err)
@@ -301,10 +299,25 @@ app.post('/guardar-proceso-inscripcion/', function (req, res) {
                             guardado: true,
                         });
                     });
-
                 }
             })
         }
+    });
+});
+
+app.get('/ver-inscritos', function (req, res) {
+    Curso.find({estado: 'disponible'},(err, cursos)=> {
+        Inscripcion.find({},(err, inscritos)=> {
+            Usuario.find({},(err, usuarios)=> {
+                return res.render(path.join(__dirname + '/vistas/ver-inscritos.hbs'),
+                    {
+                        cursos: cursos,
+                        usuarios: usuarios,
+                        inscritos: inscritos
+                    }
+                );
+            });
+        });
     });
 });
 
@@ -319,20 +332,6 @@ app.post('/guardar-proceso-inscripcion/', function (req, res) {
 
 
 
-
-app.get('/ver-inscritos', function (req, res) {
-    var cursos = JSON.parse(fs.readFileSync('cursos.json', 'utf8'));
-    var inscritos = JSON.parse(fs.readFileSync('inscritos.json', 'utf8'));
-    var usuarios = JSON.parse(fs.readFileSync('usuarios.json', 'utf8'));
-    res.locals = {
-        cursos: cursos.filter(function (item) {
-            return item.estado === 'disponible'
-        }),
-        inscritos: inscritos,
-        usuarios: usuarios
-    };
-    res.render(path.join(__dirname + '/vistas/ver-inscritos.hbs'));
-});
 
 app.get('/eliminar-inscritos', function (req, res) {
     var cursos = JSON.parse(fs.readFileSync('cursos.json', 'utf8'));
