@@ -8,15 +8,9 @@
     <h2>Iniciar Sesión</h2>
     <hr/>
 
-    {{#if msg}}
-        <div class="alert alert-success" role="alert">
-            Se registro el usuario sin problema.
-        </div>
-    {{/if}}
-
     {{#if error}}
         <div class="alert alert-danger" role="alert">
-            Error al guardar el usuario, este ya existe.
+            Error al iniciar sesión.
         </div>
     {{/if}}
 
