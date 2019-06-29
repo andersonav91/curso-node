@@ -11,6 +11,7 @@ const bcrypt = require('bcrypt');
 
 const Usuario = require('./modelos/usuario');
 const Curso = require('./modelos/curso');
+const Inscripcion = require('./modelos/inscripcion');
 
 var app = express();
 
@@ -96,10 +97,10 @@ app.post('/iniciar-sesion', function (req, res) {
         }
         req.session.id = resultados._id;
         req.session.correo = resultados.correo;
+        req.session.documento = resultados.documento;
         req.session.nombre = resultados.nombre;
         req.session.tipo = resultados.tipo;
         res.redirect('/cursos');
-       
     });
 });
 
@@ -115,16 +116,32 @@ app.post('/registrarse', function (req, res) {
         correo : 	req.body.correo,
         password : bcrypt.hashSync(req.body.password, 10)
     });
-    usuario.save((err, resultado) => {
+
+    Usuario.find({documento: req.body.documento},(err, docs)=>{
         if (err){
-            res.render(path.join(__dirname + '/vistas/iniciar-sesion.hbs'), {
+            return console.log(err)
+        }
+        if(docs.length){
+            res.render(path.join(__dirname + '/vistas/registrarse.hbs'), {
                 error: true
             });
         }
-        res.render(path.join(__dirname + '/vistas/iniciar-sesion.hbs'), {
-            msg: true
-        });
-    })
+        else{
+            usuario.save((err, resultado) => {
+                if (err){
+                    res.render(path.join(__dirname + '/vistas/registrarse.hbs'), {
+                        error: true
+                    });
+                }
+                res.render(path.join(__dirname + '/vistas/iniciar-sesion.hbs'), {
+                    msg: true,
+                    msgCreacion: true
+                });
+            })
+        }
+    });
+
+
 });
 
 app.get('/registrarse', function (req, res) {
@@ -216,6 +233,77 @@ app.post('/guardar-cursos', function (req, res) {
     });
 });
 
+app.get('/ver-curso/:id', function (req, res) {
+    Curso.findOne({idCurso: req.params.id},(err, curso)=>{
+        res.render(path.join(__dirname + '/vistas/ver-curso.hbs'), {curso: curso});
+    });
+});
+
+app.get('/cerrar-sesion/', function (req, res) {
+    req.session.destroy((err) => {
+        if (err) return console.log(err)
+    })
+    res.redirect('/');
+});
+
+app.get('/proceso-inscripcion/', function (req, res) {
+    Curso.find({estado: 'disponible'},(err, docs)=>{
+        if (err){
+            return console.log(err)
+        }
+
+        Usuario.findOne({documento: req.session.documento},(er, usuario)=> {
+            if (err){
+                return console.log(err)
+            }
+            console.log(usuario, req.session.documento);
+            return res.render(path.join(__dirname + '/vistas/proceso-inscripcion.hbs'), {
+                cursos: docs,
+                usuario: usuario
+            });
+        });
+    });
+});
+
+app.post('/guardar-proceso-inscripcion/', function (req, res) {
+    var cursos = JSON.parse(fs.readFileSync('cursos.json', 'utf8'));
+    var inscritos = JSON.parse(fs.readFileSync('inscritos.json', 'utf8'));
+    var usuarios = JSON.parse(fs.readFileSync('usuarios.json', 'utf8'));
+    var guardado = false;
+    const body = req.body;
+    var existeUsuarioCurso = inscritos.some(function (item) {
+        return item.idCurso === body.idCurso && item.documento === body.documento
+    });
+    if(! existeUsuarioCurso || existeUsuarioCurso === null){
+        guardado = true;
+        if(! usuarios.some(function (item) {
+            return item.documento === body.documento
+        })){
+            usuarios.push({
+                nombre: body.nombre,
+                correo: body.correo,
+                telefono: body.telefono,
+                documento: body.documento
+            });
+        }
+        escribirArchivo("usuarios.json", usuarios);
+        inscritos.push({
+            idCurso: body.idCurso,
+            documento: body.documento
+        });
+        escribirArchivo("inscritos.json", inscritos);
+    }
+    res.locals = {
+        cursos: cursos.filter(function (item) {
+            return item.estado === 'disponible'
+        }),
+        guardado: guardado,
+        existeUsuarioCurso: existeUsuarioCurso
+    };
+    res.render(path.join(__dirname + '/vistas/proceso-inscripcion.hbs'));
+});
+
+
 
 
 
@@ -303,65 +391,7 @@ app.post('/cambiar-estado-curso', function (req, res) {
     res.render(path.join(__dirname + '/vistas/ver-inscritos.hbs'));
 });
 
-app.get('/ver-curso/:id', function (req, res) {
-    var cursos = JSON.parse(fs.readFileSync('cursos.json', 'utf8'));
-    const id = req.params.id;
-    curso = cursos.filter(function (item) {
-        return item.idCurso === id
-    });
-    res.locals = {
-        curso: curso[0]
-    };
-    res.render(path.join(__dirname + '/vistas/ver-curso.hbs'));
-});
 
-app.get('/proceso-inscripcion/', function (req, res) {
-    var cursos = JSON.parse(fs.readFileSync('cursos.json', 'utf8'));
-    res.locals = {
-        cursos: cursos.filter(function (item) {
-            return item.estado === 'disponible'
-        })
-    };
-    res.render(path.join(__dirname + '/vistas/proceso-inscripcion.hbs'));
-});
-
-app.post('/guardar-proceso-inscripcion/', function (req, res) {
-    var cursos = JSON.parse(fs.readFileSync('cursos.json', 'utf8'));
-    var inscritos = JSON.parse(fs.readFileSync('inscritos.json', 'utf8'));
-    var usuarios = JSON.parse(fs.readFileSync('usuarios.json', 'utf8'));
-    var guardado = false;
-    const body = req.body;
-    var existeUsuarioCurso = inscritos.some(function (item) {
-        return item.idCurso === body.idCurso && item.documento === body.documento
-    });
-    if(! existeUsuarioCurso || existeUsuarioCurso === null){
-        guardado = true;
-        if(! usuarios.some(function (item) {
-            return item.documento === body.documento
-        })){
-            usuarios.push({
-                nombre: body.nombre,
-                correo: body.correo,
-                telefono: body.telefono,
-                documento: body.documento
-            });
-        }
-        escribirArchivo("usuarios.json", usuarios);
-        inscritos.push({
-            idCurso: body.idCurso,
-            documento: body.documento
-        });
-        escribirArchivo("inscritos.json", inscritos);
-    }
-    res.locals = {
-        cursos: cursos.filter(function (item) {
-            return item.estado === 'disponible'
-        }),
-        guardado: guardado,
-        existeUsuarioCurso: existeUsuarioCurso
-    };
-    res.render(path.join(__dirname + '/vistas/proceso-inscripcion.hbs'));
-});
 
 mongoose.connect("mongodb://localhost:27017/cursos", {useNewUrlParser: true}, (err, resultado) => {
     if (err){

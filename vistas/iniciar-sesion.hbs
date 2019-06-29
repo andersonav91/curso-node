@@ -14,6 +14,12 @@
         </div>
     {{/if}}
 
+    {{#if msgCreacion}}
+        <div class="alert alert-success" role="alert">
+            Se creo el usuario sin problemas.
+        </div>
+    {{/if}}
+
     <div class="jumbotron"  style="padding:40px; margin-top:50px;">
         <form class="form" role="form" autocomplete="off" id="form-login" action="iniciar-sesion" method="POST">
             <div class="form-group">
