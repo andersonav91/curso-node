@@ -3,10 +3,33 @@ var express = require('express');
 var hbs = require('hbs');
 var path = require('path');
 var bodyParser = require("body-parser");
+var mongoose = require('mongoose');
+var jwt = require('jsonwebtoken');
+var session = require('express-session')
+var memoryStore = require('memorystore')(session)
+const bcrypt = require('bcrypt');
+
+const Usuario = require('./modelos/usuario');
 
 var app = express();
 
+app.use(session({
+    cookie: { maxAge: 86400000 },
+    store: new memoryStore({
+        checkPeriod: 86400000 // prune expired entries every 24h
+    }),
+    secret: 'keyboard cat',
+    resave: true,
+    saveUninitialized: true
+}));
+
+if (typeof localStorage === "undefined" || localStorage === null) {
+    var LocalStorage = require('node-localstorage').LocalStorage;
+    localStorage = new LocalStorage('./scratch');
+}
+
 hbs.registerPartial('menu', fs.readFileSync(__dirname + '/vistas/menu.hbs', 'utf8'));
+hbs.registerPartial('css_javascript', fs.readFileSync(__dirname + '/vistas/css_javascript.hbs', 'utf8'));
 
 app.set('view engine', 'hbs');
 app.use(bodyParser.json());
@@ -55,9 +78,73 @@ hbs.registerHelper('obtenerListaInscritosAEliminar', function(object) {
     }
 );
 
-app.get('/', function (req, res) {
-    res.render(path.join(__dirname + '/vistas/cursos.hbs'));
+app.post('/iniciar-sesion', function (req, res) {
+    Usuario.findOne({correo : req.body.correo}, (err, resultados) => {
+        if (err){
+            return console.log(err)
+        }
+        if(!resultados){
+            return res.render (path.join(__dirname + '/vistas/iniciar-sesion.hbs'), {
+                error: true
+            });
+        }
+        if(!bcrypt.compareSync(req.body.password, resultados.password)){
+            res.render (path.join(__dirname + '/vistas/iniciar-sesion.hbs'), {
+                error: true
+            });
+        }
+        req.session.id = resultados._id;
+        req.session.correo = resultados.correo;
+        req.session.nombre = resultados.nombre;
+        res.redirect('/cursos');
+       
+    });
 });
+
+app.get('/', function (req, res) {
+    res.render(path.join(__dirname + '/vistas/iniciar-sesion.hbs'));
+});
+
+app.post('/registrarse', function (req, res) {
+    let usuario = new Usuario ({
+        nombre : req.body.nombre,
+        documento : req.body.documento,
+        telefono : req.body.telefono,
+        correo : 	req.body.correo,
+        password : bcrypt.hashSync(req.body.password, 10)
+    });
+    usuario.save((err, resultado) => {
+        if (err){
+            res.render(path.join(__dirname + '/vistas/iniciar-sesion.hbs'), {
+                error: true
+            });
+        }
+        res.render(path.join(__dirname + '/vistas/iniciar-sesion.hbs'), {
+            msg: true
+        });
+    })
+});
+
+app.get('/registrarse', function (req, res) {
+    res.render(path.join(__dirname + '/vistas/registrarse.hbs'));
+});
+
+app.get('/cursos', function (req, res) {
+    console.log(req.session);
+    res.render(path.join(__dirname + '/vistas/cursos.hbs'),
+        {
+            nombre: req.session.nombre,
+            correo: req.session.correo
+        }
+    );
+});
+
+
+
+
+
+
+
 
 app.get('/crear-cursos', function (req, res) {
     res.render(path.join(__dirname + '/vistas/crear-cursos.hbs'));
@@ -234,6 +321,13 @@ app.post('/guardar-cursos', function (req, res) {
         guardado: guardado
     };
     res.render(path.join(__dirname + '/vistas/crear-cursos.hbs'));
+});
+
+mongoose.connect("mongodb://localhost:27017/cursos", {useNewUrlParser: true}, (err, resultado) => {
+    if (err){
+        return console.log(error)
+    }
+    console.log("Conectado a mongo")
 });
 
 app.listen(3000, function () {

@@ -1,16 +1,13 @@
 <html>
 <head>
     <title>Curso Node</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+    {{> css_javascript}}
 </head>
 <body>
 <div class="container">
     {{> menu}}
     <div class="jumbotron"  style="padding:40px;">
-        <h1>Hola, este es el sistema de gestión de cursos del TDEA</h1>
+        <h1>Hola {{nombre}}, este es el sistema de gestión de cursos del TDEA</h1>
         <p>Utilice los menús en la parte superior para navegar a través de los casos de uso.</p>
     </div>
 </div>
