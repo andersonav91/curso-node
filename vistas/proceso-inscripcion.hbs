@@ -21,6 +21,12 @@
         </div>
     {{/if}}
 
+    {{#if error}}
+        <div class="alert alert-danger" role="alert">
+            Error al guardar el registro.
+        </div>
+    {{/if}}
+
     <div class="row">
         <div class="col-md-12 mx-auto">
             <form action="/guardar-proceso-inscripcion" method="post">

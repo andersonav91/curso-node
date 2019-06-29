@@ -256,7 +256,6 @@ app.get('/proceso-inscripcion/', function (req, res) {
             if (err){
                 return console.log(err)
             }
-            console.log(usuario, req.session.documento);
             return res.render(path.join(__dirname + '/vistas/proceso-inscripcion.hbs'), {
                 cursos: docs,
                 usuario: usuario
@@ -266,41 +265,47 @@ app.get('/proceso-inscripcion/', function (req, res) {
 });
 
 app.post('/guardar-proceso-inscripcion/', function (req, res) {
-    var cursos = JSON.parse(fs.readFileSync('cursos.json', 'utf8'));
-    var inscritos = JSON.parse(fs.readFileSync('inscritos.json', 'utf8'));
-    var usuarios = JSON.parse(fs.readFileSync('usuarios.json', 'utf8'));
-    var guardado = false;
-    const body = req.body;
-    var existeUsuarioCurso = inscritos.some(function (item) {
-        return item.idCurso === body.idCurso && item.documento === body.documento
-    });
-    if(! existeUsuarioCurso || existeUsuarioCurso === null){
-        guardado = true;
-        if(! usuarios.some(function (item) {
-            return item.documento === body.documento
-        })){
-            usuarios.push({
-                nombre: body.nombre,
-                correo: body.correo,
-                telefono: body.telefono,
-                documento: body.documento
+    Inscripcion.find({idCurso: req.body.idCurso, documento: req.body.documento},(err, inscritos)=> {
+        if (err){
+            return console.log(err)
+        }
+        if(inscritos.length){
+            Curso.find({},(err, cursos)=> {
+                Usuario.findOne({documento: req.session.documento},(er, usuario)=> {
+                    return res.render(path.join(__dirname + '/vistas/proceso-inscripcion.hbs'), {
+                        existeUsuarioCurso: true,
+                        cursos: cursos,
+                        usuario: usuario
+                    });
+                });
             });
         }
-        escribirArchivo("usuarios.json", usuarios);
-        inscritos.push({
-            idCurso: body.idCurso,
-            documento: body.documento
-        });
-        escribirArchivo("inscritos.json", inscritos);
-    }
-    res.locals = {
-        cursos: cursos.filter(function (item) {
-            return item.estado === 'disponible'
-        }),
-        guardado: guardado,
-        existeUsuarioCurso: existeUsuarioCurso
-    };
-    res.render(path.join(__dirname + '/vistas/proceso-inscripcion.hbs'));
+        else{
+            let inscripcion = new Inscripcion({
+                idCurso: req.body.idCurso,
+                documento: req.body.documento,
+                telefono: req.body.telefono,
+                nombre: req.body.nombre,
+                correo: req.body.correo
+            });
+            inscripcion.save((err, insc) => {
+                if (err){
+                    return res.render(path.join(__dirname + '/vistas/proceso-inscripcion.hbs'), {
+                        error: true
+                    });
+                }
+                else{
+                    Curso.find({},(err, cursos)=> {
+                        return res.render(path.join(__dirname + '/vistas/proceso-inscripcion.hbs'), {
+                            cursos: cursos,
+                            guardado: true,
+                        });
+                    });
+
+                }
+            })
+        }
+    });
 });
 
 
@@ -393,40 +398,20 @@ app.post('/cambiar-estado-curso', function (req, res) {
 
 
 
-mongoose.connect("mongodb://localhost:27017/cursos", {useNewUrlParser: true}, (err, resultado) => {
-    if (err){
-        return console.log(error)
-    }
-    console.log("Conectado a mongo")
-});
+
+
+
+
+
 
 app.listen(3000, function () {
-    // cursos
-    fs.exists("cursos.json", function (exists) {
-            if (!exists) {
-                // usuarios
-                escribirArchivo("cursos.json", []);
-            }
+    mongoose.connect("mongodb://localhost:27017/cursos", {useNewUrlParser: true}, (err, resultado) => {
+        if (err){
+            return console.log(error)
         }
-    );
-    fs.exists("usuarios.json", function (exists) {
-            if (!exists) {
-                // usuarios
-                escribirArchivo("usuarios.json", []);
-            }
-        }
-    );
-    fs.exists("inscritos.json", function (exists) {
-            if (!exists) {
-                // inscritos
-                escribirArchivo("inscritos.json", []);
-            }
-        }
-    );
+        console.log("Conectado a mongo")
+    });
 });
 
-function escribirArchivo(nombre, contenido) {
-    fs.writeFile(nombre, JSON.stringify(contenido), function (err, data) {});
-}
 
 
