@@ -14,7 +14,6 @@
             El curso se cerró correctamente.
         </div>
     {{/if}}
-
     <div class="row">
         <div class="col-md-12 mx-auto">
             <table class="table">
@@ -27,12 +26,20 @@
                 </tr>
                 </thead>
                 <tbody>
-                {{#each cursos}}
+                {{#each cursos as |curso|}}
                     <tr>
-                        <th scope="row"><a href="/ver-curso/{{idCurso}}">{{idCurso}}</a></th>
-                        <td><a href="/ver-curso/{{idCurso}}">{{nombre}}</a></td>
-                        <td>{{descripcion}}</td>
-                        <td>{{{obtenerListaInscritos idCurso}}}</td>
+                        <th scope="row"><a href="/ver-curso/{{curso.idCurso}}">{{idCurso}}</a></th>
+                        <td><a href="/ver-curso/{{curso.idCurso}}">{{curso.nombre}}</a></td>
+                        <td>{{curso.descripcion}}</td>
+                        <td>
+                            <ul class='list-group list-group-flush'>
+                            {{#each ../inscritos as |inscrito|}}
+                                {{#ifEquals inscrito.idCurso curso.idCurso}}
+                                    <li class='list-group-item'>{{inscrito.nombre}}</li>
+                                {{/ifEquals}}
+                            {{/each}}
+                            </ul>
+                        </td>
                     </tr>
                 {{/each}}
                 </tbody>

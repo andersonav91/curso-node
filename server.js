@@ -37,6 +37,10 @@ app.set('view engine', 'hbs');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
+hbs.registerHelper('ifEquals', function(arg1, arg2, options) {
+    return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
+});
+
 hbs.registerHelper('obtenerListaInscritos', function(object) {
     var inscritos = JSON.parse(fs.readFileSync('inscritos.json', 'utf8'));
     var usuarios = JSON.parse(fs.readFileSync('usuarios.json', 'utf8'));
@@ -306,6 +310,7 @@ app.post('/guardar-proceso-inscripcion/', function (req, res) {
 });
 
 app.get('/ver-inscritos', function (req, res) {
+    var todosCursos = [];
     Curso.find({estado: 'disponible'},(err, cursos)=> {
         Inscripcion.find({},(err, inscritos)=> {
             Usuario.find({},(err, usuarios)=> {
