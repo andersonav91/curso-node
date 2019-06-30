@@ -367,7 +367,7 @@ app.get('/eliminar-inscripcion/:idCurso/:documento', function (req, res) {
     });
 });
 
-app.listen(3000, function () {
+app.listen(process.env.PORT || 3000, function () {
     mongoose.connect((process.env.MONGODB_URI ? process.env.MONGODB_URI : "mongodb://localhost:27017/cursos"),
         {useNewUrlParser: true}, (err, resultado) => {
         if (err) {
