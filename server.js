@@ -310,8 +310,7 @@ app.post('/guardar-proceso-inscripcion/', function (req, res) {
 });
 
 app.get('/ver-inscritos', function (req, res) {
-    var todosCursos = [];
-    Curso.find({estado: 'disponible'},(err, cursos)=> {
+    Curso.find({},(err, cursos)=> {
         Inscripcion.find({},(err, inscritos)=> {
             Usuario.find({},(err, usuarios)=> {
                 return res.render(path.join(__dirname + '/vistas/ver-inscritos.hbs'),
@@ -326,7 +325,31 @@ app.get('/ver-inscritos', function (req, res) {
     });
 });
 
+app.post('/cambiar-estado-curso', function (req, res) {
+    const body = req.body;
+    var idCurso = body.idCurso;
 
+    Curso.findOne({ idCurso: idCurso }, function (er, row) {
+        row.estado = 'cerrado';
+        row.save(function(er) {
+            if(!er) {
+                Curso.find({ },(err, cursos)=> {
+                    Inscripcion.find({},(err, inscritos)=> {
+                        Usuario.find({},(err, usuarios)=> {
+                            res.locals = {
+                                cursos: cursos,
+                                cerrado: true,
+                                inscritos: inscritos,
+                                usuarios: usuarios
+                            };
+                            return res.render(path.join(__dirname + '/vistas/ver-inscritos.hbs'));
+                        });
+                    });
+                });
+            }
+        });
+    });
+});
 
 
 
@@ -379,26 +402,7 @@ app.get('/eliminar-inscripcion/:idCurso/:documento', function (req, res) {
     res.render(path.join(__dirname + '/vistas/eliminar-inscritos.hbs'));
 });
 
-app.post('/cambiar-estado-curso', function (req, res) {
-    var cursos = JSON.parse(fs.readFileSync('cursos.json', 'utf8'));
-    var inscritos = JSON.parse(fs.readFileSync('inscritos.json', 'utf8'));
-    var usuarios = JSON.parse(fs.readFileSync('usuarios.json', 'utf8'));
-    const body = req.body;
-    var idCurso = body.idCurso;
 
-    cursos[cursos.findIndex(el => el.idCurso === idCurso)].estado = "cerrado";
-    escribirArchivo("cursos.json", cursos);
-
-    res.locals = {
-        cursos: cursos.filter(function (item) {
-            return item.estado === 'disponible'
-        }),
-        cerrado: true,
-        inscritos: inscritos,
-        usuarios: usuarios
-    };
-    res.render(path.join(__dirname + '/vistas/ver-inscritos.hbs'));
-});
 
 
 
