@@ -24,17 +24,28 @@
                     <th scope="col">Nombre Curso</th>
                     <th scope="col">Descripción</th>
                     <th scope="col">Inscritos</th>
+                    <th scope="col">Estado</th>
                 </tr>
                 </thead>
                 <tbody>
-                {{#each cursos}}
+                {{#each cursos as |curso|}}
                     <tr>
-                        <th scope="row"><a href="/ver-curso/{{idCurso}}">{{idCurso}}</a></th>
-                        <td><a href="/ver-curso/{{idCurso}}">{{nombre}}</a></td>
-                        <td>{{descripcion}}</td>
+                        <th scope="row"><a href="/ver-curso/{{curso.idCurso}}">{{curso.idCurso}}</a></th>
+                        <td><a href="/ver-curso/{{idCurso}}">{{curso.nombre}}</a></td>
+                        <td>{{curso.descripcion}}</td>
                         <td>
-                            {{{obtenerListaInscritosAEliminar idCurso}}}
+                            <ul class='list-group list-group-flush'>
+                                {{#each ../inscritos as |inscrito|}}
+                                    {{#ifEquals inscrito.idCurso curso.idCurso}}
+                                        <li class='list-group-item'>{{inscrito.nombre}}
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            <a class='btn btn-primary btn-sm' href='/eliminar-inscripcion/{{inscrito.idCurso}}/{{inscrito.documento}}' role='button'>Eliminar</a>
+                                         </li>
+                                    {{/ifEquals}}
+                                {{/each}}
+                            </ul>
                         </td>
+                        <td>{{curso.estado}}</td>
                     </tr>
                 {{/each}}
                 </tbody>

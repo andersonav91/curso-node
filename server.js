@@ -41,49 +41,6 @@ hbs.registerHelper('ifEquals', function(arg1, arg2, options) {
     return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
 });
 
-hbs.registerHelper('obtenerListaInscritos', function(object) {
-    var inscritos = JSON.parse(fs.readFileSync('inscritos.json', 'utf8'));
-    var usuarios = JSON.parse(fs.readFileSync('usuarios.json', 'utf8'));
-    inscritos = inscritos.filter(function (item) {
-        return item.idCurso === object
-    });
-    var ret = "<ul class='list-group list-group-flush'>";
-    inscritos.forEach(function (it) {
-        var usua = usuarios.filter(function (item) {
-            return item.documento === it.documento
-        });
-        usua.forEach(function (i) {
-            ret = ret + "<li class='list-group-item'>" + i.nombre + "</li>";
-        });
-    });
-    ret = ret + "</ul>";
-    return ret;
-  }
-);
-
-hbs.registerHelper('obtenerListaInscritosAEliminar', function(object) {
-    var inscritos = JSON.parse(fs.readFileSync('inscritos.json', 'utf8'));
-    var usuarios = JSON.parse(fs.readFileSync('usuarios.json', 'utf8'));
-    inscritos = inscritos.filter(function (item) {
-        return item.idCurso === object
-    });
-    var ret = "<ul class='list-group list-group-flush'>";
-    inscritos.forEach(function (it) {
-        var usua = usuarios.filter(function (item) {
-            return item.documento === it.documento
-        });
-        usua.forEach(function (i) {
-            ret = ret + "<li class='list-group-item'>" + i.nombre
-                + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-                "<a class='btn btn-primary btn-sm' href='/eliminar-inscripcion/" + object + "/" + i.documento + "' role='button'>Eliminar</a>"
-                + "</li>";
-        });
-    });
-    ret = ret + "</ul>";
-    return ret;
-    }
-);
-
 app.post('/iniciar-sesion', function (req, res) {
     Usuario.findOne({correo : req.body.correo}, (err, resultados) => {
         if (err){
@@ -351,66 +308,39 @@ app.post('/cambiar-estado-curso', function (req, res) {
     });
 });
 
-
-
-
-
-
-
-
-
-
-
 app.get('/eliminar-inscritos', function (req, res) {
-    var cursos = JSON.parse(fs.readFileSync('cursos.json', 'utf8'));
-    var inscritos = JSON.parse(fs.readFileSync('inscritos.json', 'utf8'));
-    var usuarios = JSON.parse(fs.readFileSync('usuarios.json', 'utf8'));
-    res.locals = {
-        cursos: cursos.filter(function (item) {
-            return item.estado === 'disponible'
-        }),
-        inscritos: inscritos,
-        usuarios: usuarios
-    };
-    res.render(path.join(__dirname + '/vistas/eliminar-inscritos.hbs'));
+    Curso.find({},(err, cursos)=> {
+        Inscripcion.find({},(err, inscritos)=> {
+            Usuario.find({},(err, usuarios)=> {
+                return res.render(path.join(__dirname + '/vistas/eliminar-inscritos.hbs'),
+                    {
+                        cursos: cursos,
+                        usuarios: usuarios,
+                        inscritos: inscritos
+                    }
+                );
+            });
+        });
+    });
 });
 
 app.get('/eliminar-inscripcion/:idCurso/:documento', function (req, res) {
-    var cursos = JSON.parse(fs.readFileSync('cursos.json', 'utf8'));
-    var inscritos = JSON.parse(fs.readFileSync('inscritos.json', 'utf8'));
-    var usuarios = JSON.parse(fs.readFileSync('usuarios.json', 'utf8'));
-    var otrosUsuarios = inscritos.filter(function (item) {
-        return item.idCurso != req.params.idCurso || item.documento !== req.params.documento
-    });
-    escribirArchivo("inscritos.json", otrosUsuarios);
-    if(! inscritos.some(function (item) {
-        return item.documento === req.params.documento
-    })){
-        otrosUsuarios = usuarios.filter(function (item) {
-            return item.documento !== req.params.documento
+    Inscripcion.deleteOne({documento: req.params.documento, idCurso: req.params.idCurso}, (err, docs) => {
+        Curso.find({},(err, cursos)=> {
+            Inscripcion.find({},(err, inscritos)=> {
+                Usuario.find({},(err, usuarios)=> {
+                    return res.render(path.join(__dirname + '/vistas/eliminar-inscritos.hbs'),
+                        {
+                            cursos: cursos,
+                            usuarios: usuarios,
+                            inscritos: inscritos
+                        }
+                    );
+                });
+            });
         });
-        escribirArchivo("usuarios.json", otrosUsuarios);
-    }
-
-    res.locals = {
-        cursos: cursos.filter(function (item) {
-            return item.estado === 'disponible'
-        }),
-        inscritos: inscritos,
-        usuarios: usuarios
-    };
-    res.render(path.join(__dirname + '/vistas/eliminar-inscritos.hbs'));
+    });
 });
-
-
-
-
-
-
-
-
-
-
 
 app.listen(3000, function () {
     mongoose.connect("mongodb://localhost:27017/cursos", {useNewUrlParser: true}, (err, resultado) => {
