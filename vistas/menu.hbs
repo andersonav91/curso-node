@@ -5,19 +5,25 @@
             <li>
                 <a href="/listar-cursos">Listar Cursos</a>
             </li>
+            {{#ifEquals 'coordinador' tipoUsuario}}
             <li>
                 <a href="/crear-cursos">Crear Curso</a>
             </li>
-
+            {{/ifEquals}}
+            {{#ifNotEquals 'coordinador' tipoUsuario}}
             <li>
                 <a href="/proceso-inscripcion">Proceso Inscripción</a>
             </li>
+            {{/ifNotEquals}}
+            {{#ifEquals 'coordinador' tipoUsuario}}
             <li>
                 <a href="/ver-inscritos">Ver Inscritos y Cerrar Curso</a>
             </li>
+
             <li>
                 <a href="/eliminar-inscritos">Eliminar Inscritos</a>
             </li>
+            {{/ifEquals}}
             <li>
                 <a href="/cerrar-sesion">Cerrar Sesión</a>
             </li>

@@ -41,6 +41,10 @@ hbs.registerHelper('ifEquals', function(arg1, arg2, options) {
     return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
 });
 
+hbs.registerHelper('ifNotEquals', function(arg1, arg2, options) {
+    return (arg1 != arg2) ? options.fn(this) : options.inverse(this);
+});
+
 app.post('/iniciar-sesion', function (req, res) {
     Usuario.findOne({correo : req.body.correo}, (err, resultados) => {
         if (err){
@@ -113,7 +117,8 @@ app.get('/cursos', function (req, res) {
     return res.render(path.join(__dirname + '/vistas/cursos.hbs'),
         {
             nombre: req.session.nombre,
-            correo: req.session.correo
+            correo: req.session.correo,
+            tipoUsuario: req.session.tipo
         }
     );
 });
@@ -127,7 +132,8 @@ app.get('/listar-cursos', function (req, res) {
             }
 
             return res.render(path.join(__dirname + '/vistas/listar-cursos.hbs'), {
-                cursos: result
+                cursos: result,
+                tipoUsuario: req.session.tipo
             });
         });
     }
@@ -138,18 +144,22 @@ app.get('/listar-cursos', function (req, res) {
             }
 
             return res.render(path.join(__dirname + '/vistas/listar-cursos.hbs'), {
-                cursos: result
+                cursos: result,
+                tipoUsuario: req.session.tipo
             });
         });
     }else{
         return res.render(path.join(__dirname + '/vistas/listar-cursos.hbs'), {
-            cursos: cursos
+            cursos: cursos,
+            tipoUsuario: req.session.tipo
         });
     }
 });
 
 app.get('/crear-cursos', function (req, res) {
-    res.render(path.join(__dirname + '/vistas/crear-cursos.hbs'));
+    res.render(path.join(__dirname + '/vistas/crear-cursos.hbs'), {
+        tipoUsuario: req.session.tipo
+    });
 });
 
 app.post('/guardar-cursos', function (req, res) {
@@ -163,7 +173,8 @@ app.post('/guardar-cursos', function (req, res) {
             return res.render(path.join(__dirname + '/vistas/crear-cursos.hbs'),
             {
                 existeCurso: true,
-                guardado: false
+                guardado: false,
+                tipoUsuario: req.session.tipo
             });
         }else{
             var curso = new Curso({
@@ -180,13 +191,15 @@ app.post('/guardar-cursos', function (req, res) {
                     return res.render(path.join(__dirname + '/vistas/crear-cursos.hbs'),
                     {
                         existeCurso: false,
-                        guardado: false
+                        guardado: false,
+                        tipoUsuario: req.session.tipo
                     });
                 }
                 return res.render(path.join(__dirname + '/vistas/crear-cursos.hbs'),
                 {
                     existeCurso: false,
-                    guardado: true
+                    guardado: true,
+                    tipoUsuario: req.session.tipo
                 });
             })
         }
@@ -195,7 +208,10 @@ app.post('/guardar-cursos', function (req, res) {
 
 app.get('/ver-curso/:id', function (req, res) {
     Curso.findOne({idCurso: req.params.id},(err, curso)=>{
-        res.render(path.join(__dirname + '/vistas/ver-curso.hbs'), {curso: curso});
+        res.render(path.join(__dirname + '/vistas/ver-curso.hbs'), {
+            curso: curso,
+            tipoUsuario: req.session.tipo
+        });
     });
 });
 
@@ -217,7 +233,8 @@ app.get('/proceso-inscripcion/', function (req, res) {
             }
             return res.render(path.join(__dirname + '/vistas/proceso-inscripcion.hbs'), {
                 cursos: docs,
-                usuario: usuario
+                usuario: usuario,
+                tipoUsuario: req.session.tipo
             });
         });
     });
@@ -234,7 +251,8 @@ app.post('/guardar-proceso-inscripcion/', function (req, res) {
                     return res.render(path.join(__dirname + '/vistas/proceso-inscripcion.hbs'), {
                         existeUsuarioCurso: true,
                         cursos: cursos,
-                        usuario: usuario
+                        usuario: usuario,
+                        tipoUsuario: req.session.tipo
                     });
                 });
             });
@@ -250,7 +268,8 @@ app.post('/guardar-proceso-inscripcion/', function (req, res) {
             inscripcion.save((err, insc) => {
                 if (err){
                     return res.render(path.join(__dirname + '/vistas/proceso-inscripcion.hbs'), {
-                        error: true
+                        error: true,
+                        tipoUsuario: req.session.tipo
                     });
                 }
                 else{
@@ -258,6 +277,7 @@ app.post('/guardar-proceso-inscripcion/', function (req, res) {
                         return res.render(path.join(__dirname + '/vistas/proceso-inscripcion.hbs'), {
                             cursos: cursos,
                             guardado: true,
+                            tipoUsuario: req.session.tipo
                         });
                     });
                 }
@@ -274,7 +294,8 @@ app.get('/ver-inscritos', function (req, res) {
                     {
                         cursos: cursos,
                         usuarios: usuarios,
-                        inscritos: inscritos
+                        inscritos: inscritos,
+                        tipoUsuario: req.session.tipo
                     }
                 );
             });
@@ -299,7 +320,9 @@ app.post('/cambiar-estado-curso', function (req, res) {
                                 inscritos: inscritos,
                                 usuarios: usuarios
                             };
-                            return res.render(path.join(__dirname + '/vistas/ver-inscritos.hbs'));
+                            return res.render(path.join(__dirname + '/vistas/ver-inscritos.hbs'), {
+                                tipoUsuario: req.session.tipo
+                            });
                         });
                     });
                 });
@@ -316,7 +339,8 @@ app.get('/eliminar-inscritos', function (req, res) {
                     {
                         cursos: cursos,
                         usuarios: usuarios,
-                        inscritos: inscritos
+                        inscritos: inscritos,
+                        tipoUsuario: req.session.tipo
                     }
                 );
             });
@@ -333,7 +357,8 @@ app.get('/eliminar-inscripcion/:idCurso/:documento', function (req, res) {
                         {
                             cursos: cursos,
                             usuarios: usuarios,
-                            inscritos: inscritos
+                            inscritos: inscritos,
+                            tipoUsuario: req.session.tipo
                         }
                     );
                 });
@@ -344,10 +369,23 @@ app.get('/eliminar-inscripcion/:idCurso/:documento', function (req, res) {
 
 app.listen(3000, function () {
     mongoose.connect("mongodb://localhost:27017/cursos", {useNewUrlParser: true}, (err, resultado) => {
-        if (err){
+        if (err) {
             return console.log(error)
         }
-        console.log("Conectado a mongo")
+        Usuario.find({correo : "coordinador@myapp.com"}, (err, resultados) => {
+            if(! resultados.length){
+                    coordinador = new Usuario({
+                    tipo: "coordinador",
+                    nombre: "Coordinador",
+                    documento: "12345678",
+                    telefono: "1234567",
+                    correo: "coordinador@myapp.com",
+                    password: "$2b$10$972PVYdXzzWZUOLnlgdlOuMoDV2n2U4Cm2waiBR1AS4Egf4Tq3U7S" // 123456
+                });
+                coordinador.save();
+            }
+
+        });
     });
 });
 
