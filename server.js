@@ -114,6 +114,10 @@ app.get('/registrarse', function (req, res) {
 });
 
 app.get('/cursos', function (req, res) {
+    if(! req.session.correo){
+        return res.redirect('/');
+    }
+
     return res.render(path.join(__dirname + '/vistas/cursos.hbs'),
         {
             nombre: req.session.nombre,
@@ -124,6 +128,9 @@ app.get('/cursos', function (req, res) {
 });
 
 app.get('/listar-cursos', function (req, res) {
+    if(! req.session.correo){
+        return res.redirect('/');
+    }
     var cursos = {};
     if(req.session.tipo == 'aspirante'){
         cursos = Curso.find({estado: 'disponible'},(err, result)=>{
@@ -157,6 +164,9 @@ app.get('/listar-cursos', function (req, res) {
 });
 
 app.get('/crear-cursos', function (req, res) {
+    if(! req.session.correo){
+        return res.redirect('/');
+    }
     res.render(path.join(__dirname + '/vistas/crear-cursos.hbs'), {
         tipoUsuario: req.session.tipo
     });
@@ -207,6 +217,9 @@ app.post('/guardar-cursos', function (req, res) {
 });
 
 app.get('/ver-curso/:id', function (req, res) {
+    if(! req.session.correo){
+        return res.redirect('/');
+    }
     Curso.findOne({idCurso: req.params.id},(err, curso)=>{
         res.render(path.join(__dirname + '/vistas/ver-curso.hbs'), {
             curso: curso,
@@ -216,6 +229,9 @@ app.get('/ver-curso/:id', function (req, res) {
 });
 
 app.get('/cerrar-sesion/', function (req, res) {
+    if(! req.session.correo){
+        return res.redirect('/');
+    }
     req.session.destroy((err) => {
         if (err) return console.log(err)
     })
@@ -223,6 +239,9 @@ app.get('/cerrar-sesion/', function (req, res) {
 });
 
 app.get('/proceso-inscripcion/', function (req, res) {
+    if(! req.session.correo){
+        return res.redirect('/');
+    }
     Curso.find({estado: 'disponible'},(err, docs)=>{
         if (err){
             return console.log(err)
@@ -287,6 +306,9 @@ app.post('/guardar-proceso-inscripcion/', function (req, res) {
 });
 
 app.get('/ver-inscritos', function (req, res) {
+    if(! req.session.correo){
+        return res.redirect('/');
+    }
     Curso.find({},(err, cursos)=> {
         Inscripcion.find({},(err, inscritos)=> {
             Usuario.find({},(err, usuarios)=> {
@@ -311,7 +333,7 @@ app.post('/cambiar-estado-curso', function (req, res) {
         row.estado = 'cerrado';
         row.save(function(er) {
             if(!er) {
-                Curso.find({ },(err, cursos)=> {
+                Curso.find({},(err, cursos)=> {
                     Inscripcion.find({},(err, inscritos)=> {
                         Usuario.find({},(err, usuarios)=> {
                             res.locals = {
@@ -332,6 +354,9 @@ app.post('/cambiar-estado-curso', function (req, res) {
 });
 
 app.get('/eliminar-inscritos', function (req, res) {
+    if(! req.session.correo){
+        return res.redirect('/');
+    }
     Curso.find({},(err, cursos)=> {
         Inscripcion.find({},(err, inscritos)=> {
             Usuario.find({},(err, usuarios)=> {
@@ -349,6 +374,9 @@ app.get('/eliminar-inscritos', function (req, res) {
 });
 
 app.get('/eliminar-inscripcion/:idCurso/:documento', function (req, res) {
+    if(! req.session.correo){
+        return res.redirect('/');
+    }
     Inscripcion.deleteOne({documento: req.params.documento, idCurso: req.params.idCurso}, (err, docs) => {
         Curso.find({},(err, cursos)=> {
             Inscripcion.find({},(err, inscritos)=> {
